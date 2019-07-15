@@ -9,7 +9,7 @@ setup(
         extras_require = {
             'CBR': ['unrar==0.3']
         },
-        python_requires = '>=3.6.0',
+        python_requires = '>=2.7.0',
         url = 'https://github.com/wildthyme/comicapi',
         classifiers = ['License :: OSI Approved :: Apache Software License 2.0 (Apache-2.0)']
 )
