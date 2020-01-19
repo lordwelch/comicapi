@@ -5,7 +5,7 @@ setup(
         description = 'Comic archive (cbr/cbz) and metadata utilities. Extracted from the comictagger project.',
         author = 'Iris W',
         packages = ['comicapi'],
-        install_requires = ['natsort==3.5.2', 'pypdf2==1.26'],
+        install_requires = ['natsort>=3.5.2', 'pypdf2>=1.26'],
         extras_require = {
             'CBR': ['unrar==0.3']
         },
