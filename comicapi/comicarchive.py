@@ -28,10 +28,10 @@ import shutil
 
 from natsort import natsorted
 try:
-    from unrar import rarfile
-    from unrar import unrarlib
-    import unrar.constants
-    from unrar import constants
+    import rarfile
+    #from unrar import unrarlib
+    #import unrar.constants
+    #from unrar import constants
     rarsupport = True
 except ImportError:
     rarsupport = False
@@ -39,7 +39,7 @@ import ctypes
 import io
 
 
-if rarsupport:
+'''if rarsupport:
     class OpenableRarFile(rarfile.RarFile):
         def open(self, member):
             #print "opening %s..." % member
@@ -75,7 +75,7 @@ if rarsupport:
                 self._close(handle)
             if not found:
                 raise KeyError('There is no item named %r in the archive' % member)
-            return b''.join(buf)
+            return b''.join(buf)'''
 
 
 # if platform.system() == "Windows":
@@ -372,16 +372,8 @@ if rarsupport:
             while tries < 7:
                 try:
                     tries = tries + 1
-                    #tmp_folder = tempfile.mkdtemp()
-                    #tmp_file = os.path.join(tmp_folder, archive_file)
-                    #rarc.extract(archive_file, tmp_folder)
-                    data = rarc.open(archive_file)
-                    #data = open(tmp_file).read()
+                    data = rarc.read(archive_file)
                     entries = [(rarc.getinfo(archive_file), data)]
-
-                    #shutil.rmtree(tmp_folder, ignore_errors=True)
-
-                    #entries = rarc.read_files( archive_file )
 
                     if entries[0][0].file_size != len(entries[0][1]):
                         errMsg = u"readArchiveFile(): [file is not expected size: {0} vs {1}]  {2}:{3} [attempt # {4}]".format(
@@ -502,7 +494,8 @@ if rarsupport:
                 try:
                     tries = tries + 1
                     #rarc = UnRAR2.RarFile( self.path )
-                    rarc = OpenableRarFile(self.path)
+                    rarc = rarfile.RarFile(self.path)
+                    #rarc = OpenableRarFile(self.path)
 
                 except (OSError, IOError) as e:
                     errMsg = u"getRARObj(): [{0}] {1} attempt#{2}".format(
@@ -903,7 +896,7 @@ class ComicArchive:
                     #	k = os.path.join(os.path.split(k)[0], "z" + basename)
                     return k.lower()
 
-                files = natsorted(files, key=keyfunc, signed=False)
+                files = natsorted(files, key=keyfunc) #, signed=False)
 
             # make a sub-list of image files
             self.page_list = []
