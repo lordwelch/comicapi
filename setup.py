@@ -1,8 +1,8 @@
 from setuptools import setup
 setup(
         name = 'comicapi',
-        version = '2.1',
-        description = 'Comic archive (cbr/cbz) and metadata utilities. Extracted from the comictagger project.',
+        version = '2.1.1',
+        description = 'Comic archive (cbr/cbz/cbt) and metadata utilities. Extracted from the comictagger project.',
         author = 'Iris W',
         packages = ['comicapi'],
         install_requires = ['natsort>=3.5.2'],

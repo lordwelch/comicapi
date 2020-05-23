@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,13 +28,15 @@ import codecs
 class UtilsVars:
     already_fixed_encoding = False
 
+
 def get_actual_preferred_encoding():
     preferred_encoding = locale.getpreferredencoding()
     if platform.system() == "Darwin":
         preferred_encoding = "utf-8"
     return preferred_encoding
 
-def fix_output_encoding( ):
+
+def fix_output_encoding():
     if not UtilsVars.already_fixed_encoding:
         # this reads the environment and inits the right locale
         locale.setlocale(locale.LC_ALL, "")
@@ -45,37 +47,39 @@ def fix_output_encoding( ):
         sys.stderr = codecs.getwriter(preferred_encoding)(sys.stderr)
         UtilsVars.already_fixed_encoding = True
 
-def get_recursive_filelist( pathlist ):
+
+def get_recursive_filelist(pathlist):
     """
-	Get a recursive list of of all files under all path items in the list
-	"""
+    Get a recursive list of of all files under all path items in the list
+    """
     filename_encoding = sys.getfilesystemencoding()
     filelist = []
     for p in pathlist:
         # if path is a folder, walk it recursivly, and all files underneath
         if type(p) == str:
-            #make sure string is unicode
-            p = p.decode(filename_encoding) #, 'replace')
+            # make sure string is unicode
+            p = p.decode(filename_encoding)
         elif type(p) != str:
-            #it's probably a QString
+            # it's probably a QString
             p = str(p)
 
-        if os.path.isdir( p ):
-            for root,dirs,files in os.walk( p ):
+        if os.path.isdir(p):
+            for root, dirs, files in os.walk(p):
                 for f in files:
                     if type(f) == str:
-                        #make sure string is unicode
+                        # make sure string is unicode
                         f = f.decode(filename_encoding, 'replace')
                     elif type(f) != str:
-                        #it's probably a QString
+                        # it's probably a QString
                         f = str(f)
-                    filelist.append(os.path.join(root,f))
+                    filelist.append(os.path.join(root, f))
         else:
             filelist.append(p)
 
     return filelist
 
-def listToString( l ):
+
+def listToString(l):
     string = ""
     if l is not None:
         for item in l:
@@ -84,16 +88,18 @@ def listToString( l ):
             string += item
     return string
 
-def addtopath( dirname ):
+
+def addtopath(dirname):
     if dirname is not None and dirname != "":
 
         # verify that path doesn't already contain the given dirname
         tmpdirname = re.escape(dirname)
-        pattern = r"{sep}{dir}$|^{dir}{sep}|{sep}{dir}{sep}|^{dir}$".format( dir=tmpdirname, sep=os.pathsep)
+        pattern = r"{sep}{dir}$|^{dir}{sep}|{sep}{dir}{sep}|^{dir}$".format(dir=tmpdirname, sep=os.pathsep)
 
         match = re.search(pattern, os.environ['PATH'])
         if not match:
             os.environ['PATH'] = dirname + os.pathsep + os.environ['PATH']
+
 
 # returns executable path, if it exists
 def which(program):
@@ -113,9 +119,10 @@ def which(program):
 
     return None
 
-def removearticles( text ):
+
+def removearticles(text):
     text = text.lower()
-    articles = ['and', 'the', 'a', '&', 'issue' ]
+    articles = ['and', 'the', 'a', '&', 'issue']
     newText = ''
     for word in text.split(' '):
         if word not in articles:
@@ -131,16 +138,15 @@ def removearticles( text ):
     # since the CV api changed, searches for series names with periods
     # now explicity require the period to be in the search key,
     # so the line below is removed (for now)
-    #newText = newText.replace(".", "")
 
     return newText
 
 
 def unique_file(file_name):
     counter = 1
-    file_name_parts = os.path.splitext(file_name) # returns ('/path/file', '.ext')
+    file_name_parts = os.path.splitext(file_name)  # returns ('/path/file', '.ext')
     while 1:
-        if not os.path.lexists( file_name):
+        if not os.path.lexists(file_name):
             return file_name
         file_name = file_name_parts[0] + ' (' + str(counter) + ')' + file_name_parts[1]
         counter += 1
@@ -573,12 +579,12 @@ countries = [
 ]
 
 
-
 def getLanguageDict():
     return lang_dict
 
-def getLanguageFromISO( iso ):
+
+def getLanguageFromISO(iso):
     if iso == None:
         return None
     else:
-        return lang_dict[ iso ]
+        return lang_dict[iso]

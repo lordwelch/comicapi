@@ -1,5 +1,5 @@
 """
-Functions for parsing comic info from filename 
+Functions for parsing comic info from filename
 
 This should probably be re-written, but, well, it mostly works!
 
@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ class FileNameParser:
             placeholders = ['[_]', '  +']
         for ph in placeholders:
             string = re.sub(ph, self.repl, string)
-        return string  #.strip()
+        return string
 
     def getIssueCount(self, filename, issue_end):
 
@@ -57,7 +57,6 @@ class FileNameParser:
             match = re.search('(?<=\(of\s)\d+(?=\))', tmpstr, re.IGNORECASE)
             if match:
                 count = match.group()
-                found = True
 
         count = count.lstrip("0")
 
@@ -94,8 +93,6 @@ class FileNameParser:
         # remove any "of NN" phrase with spaces (problem: this could break on some titles)
         filename = re.sub("of [\d]+", self.repl, filename)
 
-        #print u"[{0}]".format(filename)
-
         # we should now have a cleaned up filename version with all the words in
         # the same positions as original filename
 
@@ -108,7 +105,7 @@ class FileNameParser:
         if len(word_list) > 1:
             word_list = word_list[1:]
         else:
-            #only one word??  just bail.
+            # only one word??  just bail.
             return issue, start, end
 
         # Now try to search for the likely issue number word in the list
@@ -164,7 +161,7 @@ class FileNameParser:
         series = tmpstr
         volume = ""
 
-        #save the last word
+        # save the last word
         try:
             last_word = series.split()[-1]
         except:
@@ -182,7 +179,7 @@ class FileNameParser:
         # if a volume wasn't found, see if the last word is a year in parentheses
         # since that's a common way to designate the volume
         if volume == "":
-            #match either (YEAR), (YEAR-), or (YEAR-YEAR2)
+            # match either (YEAR), (YEAR-), or (YEAR-YEAR2)
             match = re.search("(\()(\d{4})(-(\d{4}|)|)(\))", last_word)
             if match:
                 volume = match.group(2)
@@ -218,7 +215,7 @@ class FileNameParser:
 
     def getRemainder(self, filename, year, count, issue_end):
 
-        #make a guess at where the the non-interesting stuff begins
+        # make a guess at where the the non-interesting stuff begins
         remainder = ""
 
         if "--" in filename:
@@ -246,7 +243,7 @@ class FileNameParser:
         # remove the extension
         filename = os.path.splitext(filename)[0]
 
-        #url decode, just in case
+        # url decode, just in case
         filename = unquote(filename)
 
         # sometimes archives get messed up names from too many decodings

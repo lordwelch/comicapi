@@ -1,5 +1,5 @@
 """
-A python class to encapsulate CoMet data 
+A python class to encapsulate CoMet data
 
 Copyright 2012-2014  Anthony Beville
 
@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime
-import zipfile
-from pprint import pprint
 import xml.etree.ElementTree as ET
 from comicapi.genericmetadata import GenericMetadata
 import comicapi.utils
@@ -64,7 +61,7 @@ class CoMet:
 
     def convertMetadataToXML(self, filename, metadata):
 
-        #shorthand for the metadata
+        # shorthand for the metadata
         md = metadata
 
         # build a tree structure
@@ -74,7 +71,7 @@ class CoMet:
         root.attrib[
             'xsi:schemaLocation'] = "http://www.denvog.com http://www.denvog.com/comet/comet.xsd"
 
-        #helper func
+        # helper func
         def assign(comet_entry, md_entry):
             if md_entry is not None:
                 ET.SubElement(root, comet_entry).text = u"{0}".format(md_entry)
@@ -84,7 +81,7 @@ class CoMet:
             md.title = ""
         assign('title', md.title)
         assign('series', md.series)
-        assign('issue', md.issue)  #must be int??
+        assign('issue', md.issue)  # must be int??
         assign('volume', md.volume)
         assign('description', md.comments)
         assign('publisher', md.publisher)
@@ -115,15 +112,6 @@ class CoMet:
             assign('date', date_str)
 
         assign('coverImage', md.coverImage)
-
-        # need to specially process the credits, since they are structured differently than CIX
-        credit_writer_list = list()
-        credit_penciller_list = list()
-        credit_inker_list = list()
-        credit_colorist_list = list()
-        credit_letterer_list = list()
-        credit_cover_list = list()
-        credit_editor_list = list()
 
         #  loop thru credits, and build a list for each role that CoMet supports
         for credit in metadata.credits:
@@ -169,7 +157,6 @@ class CoMet:
 
         if root.tag != 'comet':
             raise KeyError("Not a comet XML!")
-            #return None
 
         metadata = GenericMetadata()
         md = metadata
@@ -234,7 +221,7 @@ class CoMet:
 
         return metadata
 
-    #verify that the string actually contains CoMet data in XML format
+    # verify that the string actually contains CoMet data in XML format
     def validateString(self, string):
         try:
             tree = ET.ElementTree(ET.fromstring(string))
@@ -249,7 +236,6 @@ class CoMet:
     def writeToExternalFile(self, filename, metadata):
 
         tree = self.convertMetadataToXML(self, metadata)
-        #ET.dump(tree)
         tree.write(filename, encoding='utf-8')
 
     def readFromExternalFile(self, filename):

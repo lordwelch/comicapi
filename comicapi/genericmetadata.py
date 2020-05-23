@@ -1,17 +1,17 @@
 """
  A python class for internal metadata storage
- 
+
  The goal of this class is to handle ALL the data that might come from various
- tagging schemes and databases, such as ComicVine or GCD.  This makes conversion 
+ tagging schemes and databases, such as ComicVine or GCD.  This makes conversion
  possible, however lossy it might be
- 
+
 Copyright 2012-2014  Anthony Beville
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,18 +36,6 @@ class PageType:
     BackCover = "BackCover"
     Other = "Other"
     Deleted = "Deleted"
-
-
-"""
-class PageInfo:
-	Image = 0
-	Type = PageType.Story
-	DoublePage = False
-	ImageSize = 0
-	Key = ""
-	ImageWidth = 0
-	ImageHeight = 0
-"""
 
 
 class GenericMetadata:
@@ -174,8 +162,8 @@ class GenericMetadata:
 
     def overlayCredits(self, new_credits):
         for c in new_credits:
-            if 'primary' in c:
             # if c.has_key('primary') and c['primary']:
+            if 'primary' in c:
                 primary = True
             else:
                 primary = False
@@ -295,8 +283,8 @@ class GenericMetadata:
 
         for c in self.credits:
             primary = ""
-            if 'primary' in c:
             # if c.has_key('primary') and c['primary']:
+            if 'primary' in c:
                 primary = " [P]"
             add_string("credit", c['role'] + ": " + c['person'] + primary)
 
@@ -306,7 +294,7 @@ class GenericMetadata:
             flen = max(flen, len(i[0]))
         flen += 1
 
-        #format the data nicely
+        # format the data nicely
         outstr = ""
         fmt_str = u"{0: <" + str(flen) + "} {1}\n"
         for i in vals:

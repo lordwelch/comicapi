@@ -1,5 +1,5 @@
 """
-A python class to encapsulate ComicRack's ComicInfo.xml data 
+A python class to encapsulate ComicRack's ComicInfo.xml data
 
 Copyright 2012-2014  Anthony Beville
 
@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from datetime import datetime
-import zipfile
-from pprint import pprint
 import xml.etree.ElementTree as ET
 from comicapi.genericmetadata import GenericMetadata
 import comicapi.utils
@@ -75,7 +72,7 @@ class ComicInfoXml:
 
     def convertMetadataToXML(self, filename, metadata):
 
-        #shorthand for the metadata
+        # shorthand for the metadata
         md = metadata
 
         # build a tree structure
@@ -83,7 +80,7 @@ class ComicInfoXml:
         root.attrib['xmlns:xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
         root.attrib['xmlns:xsd'] = "http://www.w3.org/2001/XMLSchema"
 
-        #helper func
+        # helper func
         def assign(cix_entry, md_entry):
             if md_entry is not None:
                 ET.SubElement(root, cix_entry).text = u"{0}".format(md_entry)
@@ -267,7 +264,7 @@ class ComicInfoXml:
         if pages_node is not None:
             for page in pages_node:
                 metadata.pages.append(page.attrib)
-                #print page.attrib
+                # print page.attrib
 
         metadata.isEmpty = False
 
@@ -276,7 +273,6 @@ class ComicInfoXml:
     def writeToExternalFile(self, filename, metadata):
 
         tree = self.convertMetadataToXML(self, metadata)
-        #ET.dump(tree)
         tree.write(filename, encoding='utf-8')
 
     def readFromExternalFile(self, filename):

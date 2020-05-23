@@ -1,5 +1,5 @@
 """
-A python class to encapsulate the ComicBookInfo data 
+A python class to encapsulate the ComicBookInfo data
 
 Copyright 2012-2014  Anthony Beville
 
@@ -7,7 +7,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,9 @@ limitations under the License.
 
 import json
 from datetime import datetime
-import zipfile
 
 from comicapi.genericmetadata import GenericMetadata
 import comicapi.utils
-
-#import ctversion
 
 
 class ComicBookInfo:
@@ -35,7 +32,7 @@ class ComicBookInfo:
 
         cbi = cbi_container['ComicBookInfo/1.0']
 
-        #helper func
+        # helper func
         # If item is not in CBI, return None
         def xlate(cbi_entry):
             if cbi_entry in cbi:
@@ -66,7 +63,7 @@ class ComicBookInfo:
         if metadata.tags is None:
             metadata.tags = []
 
-        #need to massage the language string to be ISO
+        # need to massage the language string to be ISO
         if metadata.language is not None:
             # reverse look-up
             pattern = metadata.language
@@ -86,7 +83,7 @@ class ComicBookInfo:
         cbi_container = self.createJSONDictionary(metadata)
         return json.dumps(cbi_container)
 
-    #verify that the string actually contains CBI data in JSON format
+    # verify that the string actually contains CBI data in JSON format
     def validateString(self, string):
 
         try:
@@ -94,24 +91,24 @@ class ComicBookInfo:
         except:
             return False
 
-        return ('ComicBookInfo/1.0' in cbi_container)
+        return 'ComicBookInfo/1.0' in cbi_container
 
     def createJSONDictionary(self, metadata):
 
         # Create the dictionary that we will convert to JSON text
         cbi = dict()
         cbi_container = {
-            'appID': 'ComicTagger/' + '1.0.0',  #ctversion.version, 
+            'appID': 'ComicTagger/' + '1.0.0',  # ctversion.version,
             'lastModified': str(datetime.now()),
             'ComicBookInfo/1.0': cbi
         }
 
-        #helper func
+        # helper func
         def assign(cbi_entry, md_entry):
             if md_entry is not None:
                 cbi[cbi_entry] = md_entry
 
-        #helper func
+        # helper func
         def toInt(s):
             i = None
             if type(s) in [str, int]:
@@ -147,4 +144,4 @@ class ComicBookInfo:
 
         f = open(filename, 'w')
         f.write(json.dumps(cbi_container, indent=4))
-        f.close
+        f.close()

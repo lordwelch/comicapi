@@ -1,1 +1,3 @@
 __author__ = 'dromanin'
+
+__version__ = '2.1.1'
