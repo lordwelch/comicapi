@@ -619,6 +619,7 @@ if rarsupport:
             while tries < 7:
                 try:
                     tries = tries + 1
+                    rarfile.UNRAR_TOOL = self.rar_exe_path
                     rarc = rarfile.RarFile(self.path)
 
                 except (OSError, IOError) as e:
