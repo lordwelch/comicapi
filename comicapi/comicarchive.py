@@ -30,7 +30,7 @@ from natsort import natsorted
 try:
     import rarfile
     rarsupport = True
-except ImportError:
+except (ImportError, SyntaxError):
     rarsupport = False
 
 import time
