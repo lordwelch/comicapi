@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
         name = 'comicapi',
-        version = '2.2.0',
+        version = '2.2.1',
         description = 'Comic archive (cbr/cbz/cbt) and metadata utilities. Extracted from the comictagger project.',
         author = 'Iris W',
         maintainer = "@OzzieIsaacs",
@@ -10,7 +10,7 @@ setup(
         extras_require = {
             'CBR': ['rarfile==2.7']
         },
-        python_requires = '>=2.7.0',
+        python_requires = '>=3.0.0',
         url = 'https://github.com/OzzieIsaacs/comicapi',
         classifiers = [
                 "Programming Language :: Python :: 3",
