@@ -1,37 +1,35 @@
-# coding=utf-8
+"""Support for mixed digit/string type Issue field
+
+Class for handling the odd permutations of an 'issue number' that the
+comics industry throws at us.
+  e.g.: "12", "12.1", "0", "-1", "5AU", "100-2"
 """
-Class for handling the odd permutations of an 'issue number' that the comics industry throws at us
+# Copyright 2012-2014 Anthony Beville
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+from __future__ import annotations
 
-e.g.:
+import logging
+import unicodedata
 
-"12"
-"12.1"
-"0"
-"-1"
-"5AU"
-"100-2"
-
-Copyright 2012-2014  Anthony Beville
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+logger = logging.getLogger(__name__)
 
 
 class IssueString:
-    def __init__(self, text):
+    def __init__(self, text: str | None) -> None:
 
-        #  break up the issue number string into 2 parts: the numeric and suffix string.
-        # ( assumes that the numeric portion is always first )
+        # break up the issue number string into 2 parts: the numeric and suffix string.
+        # (assumes that the numeric portion is always first)
 
         self.num = None
         self.suffix = ""
@@ -39,14 +37,13 @@ class IssueString:
         if text is None:
             return
 
-        if type(text) == int:
-            text = str(text)
+        text = str(text)
 
         if len(text) == 0:
             return
 
         # skip the minus sign if it's first
-        if text[0] == '-':
+        if text[0] == "-":
             start = 1
         else:
             start = 0
@@ -76,7 +73,7 @@ class IssueString:
                 idx = 0
 
             part1 = text[0:idx]
-            part2 = text[idx:len(text)]
+            part2 = text[idx : len(text)]
 
             if part1 != "":
                 self.num = float(part1)
@@ -84,7 +81,7 @@ class IssueString:
         else:
             self.suffix = text
 
-    def asString(self, pad=0):
+    def as_string(self, pad: int = 0) -> str:
         # return the float, left side zero-padded, with suffix attached
         if self.num is None:
             return self.suffix
@@ -102,9 +99,9 @@ class IssueString:
 
         # create padding
         padding = ""
-        l = len(str(num_int))
-        if l < pad:
-            padding = "0" * (pad - l)
+        length = len(str(num_int))
+        if length < pad:
+            padding = "0" * (pad - length)
 
         num_s = padding + num_s
         if negative:
@@ -112,17 +109,10 @@ class IssueString:
 
         return num_s
 
-    def asFloat(self):
+    def as_float(self) -> float | None:
         # return the float, with no suffix
-        if self.suffix == u"½":
-            if self.num is not None:
-                return self.num + .5
-            else:
-                return .5
-        return self.num
+        if len(self.suffix) == 1 and self.suffix.isnumeric():
+            return (self.num or 0) + unicodedata.numeric(self.suffix)
 
-    def asInt(self):
-        # return the int version of the float
-        if self.num is None:
-            return None
-        return int(self.num)
+            return 0.5
+        return self.num

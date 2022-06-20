@@ -1,61 +1,106 @@
-"""
-A python class to encapsulate the ComicBookInfo data
-
-Copyright 2012-2014  Anthony Beville
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+"""A class to encapsulate the ComicBookInfo data"""
+# Copyright 2012-2014 Anthony Beville
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+from __future__ import annotations
 
 import json
+import logging
+from collections import defaultdict
 from datetime import datetime
+from typing import Any
+from typing import Literal
+from typing import TypedDict
 
+from comicapi import utils
 from comicapi.genericmetadata import GenericMetadata
-import comicapi.utils
+
+logger = logging.getLogger(__name__)
+
+CBILiteralType = Literal[
+    "series",
+    "title",
+    "issue",
+    "publisher",
+    "publicationMonth",
+    "publicationYear",
+    "numberOfIssues",
+    "comments",
+    "genre",
+    "volume",
+    "numberOfVolumes",
+    "language",
+    "country",
+    "rating",
+    "credits",
+    "tags",
+]
+
+
+class Credits(TypedDict):
+    person: str
+    role: str
+    primary: bool
+
+
+class ComicBookInfoJson(TypedDict, total=False):
+    series: str
+    title: str
+    publisher: str
+    publicationMonth: int
+    publicationYear: int
+    issue: int
+    numberOfIssues: int
+    volume: int
+    numberOfVolumes: int
+    rating: int
+    genre: str
+    language: str
+    country: str
+    credits: list[Credits]
+    tags: list[str]
+    comments: str
+
+
+CBIContainer = TypedDict("CBIContainer", {"appID": str, "lastModified": str, "ComicBookInfo/1.0": ComicBookInfoJson})
 
 
 class ComicBookInfo:
-    def metadataFromString(self, string):
+    def metadata_from_string(self, string: str) -> GenericMetadata:
 
-        cbi_container = json.loads(str(string, 'utf-8'))
+        cbi_container = json.loads(string)
 
         metadata = GenericMetadata()
 
-        cbi = cbi_container['ComicBookInfo/1.0']
+        cbi = defaultdict(lambda: None, cbi_container["ComicBookInfo/1.0"])
 
-        # helper func
-        # If item is not in CBI, return None
-        def xlate(cbi_entry):
-            if cbi_entry in cbi:
-                return cbi[cbi_entry]
-            else:
-                return None
+        metadata.series = utils.xlate(cbi["series"])
+        metadata.title = utils.xlate(cbi["title"])
+        metadata.issue = utils.xlate(cbi["issue"])
+        metadata.publisher = utils.xlate(cbi["publisher"])
+        metadata.month = utils.xlate(cbi["publicationMonth"], True)
+        metadata.year = utils.xlate(cbi["publicationYear"], True)
+        metadata.issue_count = utils.xlate(cbi["numberOfIssues"], True)
+        metadata.comments = utils.xlate(cbi["comments"])
+        metadata.genre = utils.xlate(cbi["genre"])
+        metadata.volume = utils.xlate(cbi["volume"], True)
+        metadata.volume_count = utils.xlate(cbi["numberOfVolumes"], True)
+        metadata.language = utils.xlate(cbi["language"])
+        metadata.country = utils.xlate(cbi["country"])
+        metadata.critical_rating = utils.xlate(cbi["rating"])
 
-        metadata.series = xlate('series')
-        metadata.title = xlate('title')
-        metadata.issue = xlate('issue')
-        metadata.publisher = xlate('publisher')
-        metadata.month = xlate('publicationMonth')
-        metadata.year = xlate('publicationYear')
-        metadata.issueCount = xlate('numberOfIssues')
-        metadata.comments = xlate('comments')
-        metadata.credits = xlate('credits')
-        metadata.genre = xlate('genre')
-        metadata.volume = xlate('volume')
-        metadata.volumeCount = xlate('numberOfVolumes')
-        metadata.language = xlate('language')
-        metadata.country = xlate('country')
-        metadata.criticalRating = xlate('rating')
-        metadata.tags = xlate('tags')
+        metadata.credits = cbi["credits"]
+        metadata.tags = cbi["tags"]
 
         # make sure credits and tags are at least empty lists and not None
         if metadata.credits is None:
@@ -63,85 +108,65 @@ class ComicBookInfo:
         if metadata.tags is None:
             metadata.tags = []
 
-        # need to massage the language string to be ISO
+        # need the language string to be ISO
         if metadata.language is not None:
-            # reverse look-up
-            pattern = metadata.language
-            metadata.language = None
-            for key in comicapi.utils.getLanguageDict():
-                if comicapi.utils.getLanguageDict()[key] == pattern.encode(
-                        'utf-8'):
-                    metadata.language = key
-                    break
+            metadata.language = utils.get_language(metadata.language)
 
-        metadata.isEmpty = False
+        metadata.is_empty = False
 
         return metadata
 
-    def stringFromMetadata(self, metadata):
-
-        cbi_container = self.createJSONDictionary(metadata)
+    def string_from_metadata(self, metadata: GenericMetadata) -> str:
+        cbi_container = self.create_json_dictionary(metadata)
         return json.dumps(cbi_container)
 
-    # verify that the string actually contains CBI data in JSON format
-    def validateString(self, string):
+    def validate_string(self, string: bytes | str) -> bool:
+        """Verify that the string actually contains CBI data in JSON format"""
 
         try:
             cbi_container = json.loads(string)
-        except:
+        except json.JSONDecodeError:
             return False
 
-        return 'ComicBookInfo/1.0' in cbi_container
+        return "ComicBookInfo/1.0" in cbi_container
 
-    def createJSONDictionary(self, metadata):
+    def create_json_dictionary(self, metadata: GenericMetadata) -> CBIContainer:
+        """Create the dictionary that we will convert to JSON text"""
 
-        # Create the dictionary that we will convert to JSON text
-        cbi = dict()
-        cbi_container = {
-            'appID': 'ComicTagger/' + '1.0.0',  # ctversion.version,
-            'lastModified': str(datetime.now()),
-            'ComicBookInfo/1.0': cbi
-        }
-
-        # helper func
-        def assign(cbi_entry, md_entry):
-            if md_entry is not None:
-                cbi[cbi_entry] = md_entry
+        cbi_container = CBIContainer(
+            {
+                "appID": "ComicTagger/" + "1.0.0",
+                "lastModified": str(datetime.now()),
+                "ComicBookInfo/1.0": {},
+            }
+        )  # TODO: ctversion.version,
 
         # helper func
-        def toInt(s):
-            i = None
-            if type(s) in [str, int]:
-                try:
-                    i = int(s)
-                except ValueError:
-                    pass
-            return i
+        def assign(cbi_entry: CBILiteralType, md_entry: Any) -> None:
+            if md_entry is not None or isinstance(md_entry, str) and md_entry != "":
+                cbi_container["ComicBookInfo/1.0"][cbi_entry] = md_entry
 
-        assign('series', metadata.series)
-        assign('title', metadata.title)
-        assign('issue', metadata.issue)
-        assign('publisher', metadata.publisher)
-        assign('publicationMonth', toInt(metadata.month))
-        assign('publicationYear', toInt(metadata.year))
-        assign('numberOfIssues', toInt(metadata.issueCount))
-        assign('comments', metadata.comments)
-        assign('genre', metadata.genre)
-        assign('volume', toInt(metadata.volume))
-        assign('numberOfVolumes', toInt(metadata.volumeCount))
-        assign('language', comicapi.utils.getLanguageFromISO(
-            metadata.language))
-        assign('country', metadata.country)
-        assign('rating', metadata.criticalRating)
-        assign('credits', metadata.credits)
-        assign('tags', metadata.tags)
+        assign("series", utils.xlate(metadata.series))
+        assign("title", utils.xlate(metadata.title))
+        assign("issue", utils.xlate(metadata.issue))
+        assign("publisher", utils.xlate(metadata.publisher))
+        assign("publicationMonth", utils.xlate(metadata.month, True))
+        assign("publicationYear", utils.xlate(metadata.year, True))
+        assign("numberOfIssues", utils.xlate(metadata.issue_count, True))
+        assign("comments", utils.xlate(metadata.comments))
+        assign("genre", utils.xlate(metadata.genre))
+        assign("volume", utils.xlate(metadata.volume, True))
+        assign("numberOfVolumes", utils.xlate(metadata.volume_count, True))
+        assign("language", utils.xlate(utils.get_language_from_iso(metadata.language)))
+        assign("country", utils.xlate(metadata.country))
+        assign("rating", utils.xlate(metadata.critical_rating))
+        assign("credits", metadata.credits)
+        assign("tags", metadata.tags)
 
         return cbi_container
 
-    def writeToExternalFile(self, filename, metadata):
+    def write_to_external_file(self, filename: str, metadata: GenericMetadata) -> None:
+        cbi_container = self.create_json_dictionary(metadata)
 
-        cbi_container = self.createJSONDictionary(metadata)
-
-        f = open(filename, 'w')
-        f.write(json.dumps(cbi_container, indent=4))
-        f.close()
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(json.dumps(cbi_container, indent=4))

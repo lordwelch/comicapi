@@ -1,3 +1,4 @@
-__author__ = 'dromanin'
+from __future__ import annotations
 
-__version__ = '2.2.0'
+__author__ = "dromanin"
+__version__ = "3.0.0"
